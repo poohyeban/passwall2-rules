@@ -1,0 +1,74 @@
+{
+  "adguard": {
+    "badfilter": 5,
+    "blocks_before_exceptions": 183045,
+    "disabled": 1,
+    "exception_envelopes": 11,
+    "exceptions": 206,
+    "important_conservatively_lowered": 5,
+    "input": 183307,
+    "omitted": 770,
+    "output": 182332
+  },
+  "artifacts": {
+    "geoip.dat": "cf19ff1ed853f6125de3a7c1ee616217f64e11a7c2e22604516f03a82ed7bac3",
+    "geosite.dat": "4239336b4e084ecce0d8999dca039d6bf61a248fa7ab43c23e8627eb5fb0a4c2"
+  },
+  "asn_records": {
+    "401518": 1,
+    "401864": 0
+  },
+  "counts": {
+    "pw2-adguard": {
+      "domains": 182332,
+      "ipv4": 0,
+      "ipv6": 0,
+      "regexps": 0
+    },
+    "pw2-china": {
+      "domains": 6623,
+      "ipv4": 8098,
+      "ipv6": 11307,
+      "regexps": 3
+    },
+    "pw2-openai": {
+      "domains": 36,
+      "ipv4": 24,
+      "ipv6": 0,
+      "regexps": 7
+    }
+  },
+  "format": 1,
+  "reviewed_inputs": {
+    "official-domains-excluded.txt": "7cd36f96f4df2edbbc569f93706b31202e24ed1b0244348a249e906471ec6bbd",
+    "official-domains.txt": "d46ed3f8b878bb4b7da4287482c018eca1f15c796802e21e5f27a9431311ecec"
+  },
+  "sources": {
+    "adguard": {
+      "sha256": "2b273442d17cd9b6cbb9e56ce01965db2e62d6a93316767e0717ff93aeb9b4f6",
+      "url": "https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt"
+    },
+    "asn": {
+      "sha256": "b3eabc78beb2afd554f9592aa21da202de88e962a3c20ef164784f0ac7bc111f",
+      "url": "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb"
+    },
+    "china-domain": {
+      "sha256": "09f9a0a1c8c3db90513a864bc13e66393f9788b47e0be7beb508756a7feea774",
+      "url": "https://raw.githubusercontent.com/v2fly/domain-list-community/release/cn.txt"
+    },
+    "country": {
+      "sha256": "aa10ad6c6dc7daa32344954a9bdfae83d8e791540b7d17f7d06086aeb5b630cc",
+      "url": "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb"
+    },
+    "openai-domain": {
+      "sha256": "19a100966b3c5b0dff2e7038ba66366ef10d6384781b3eda6de4d1e79712dcc6",
+      "url": "https://raw.githubusercontent.com/v2fly/domain-list-community/master/data/openai"
+    },
+    "voice": {
+      "sha256": "8f03f3c594165eeff009915c7e2beb4bdfb9d429fb1955c205e3b33ec781899a",
+      "url": "https://openai.com/chatgpt-voice.json"
+    }
+  },
+  "target": "PassWall2 / Xray",
+  "xray_test_version": "26.9.9"
+}
