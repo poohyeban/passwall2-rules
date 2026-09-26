@@ -134,13 +134,13 @@ def build(root: Path, offline: bool = False):
     asn_coverage = {}
     ai_asn = read_mmdb(cache / "asn", "asn", asn_coverage)
     ai_voice = voice_prefixes(raw["voice"])
-    domains = {"pw2-china": china, "pw2-openai": openai_v2 | official, "pw2-adguard": ads}
-    ips = {"pw2-china": cn_ip, "pw2-openai": networks(ai_asn + ai_voice)}
+    domains = {"pooban-china": china, "pooban-openai": openai_v2 | official, "pooban-adguard": ads}
+    ips = {"pooban-china": cn_ip, "pooban-openai": networks(ai_asn + ai_voice)}
     counts = {tag: {"domains": len(rules), "regexps": sum(r.kind == "regexp" for r in rules),
                     "ipv4": sum(n.version == 4 for n in ips.get(tag, [])),
                     "ipv6": sum(n.version == 6 for n in ips.get(tag, []))}
               for tag, rules in domains.items()}
-    for tag, minimum in {"pw2-china": 100, "pw2-openai": 5, "pw2-adguard": 1000}.items():
+    for tag, minimum in {"pooban-china": 100, "pooban-openai": 5, "pooban-adguard": 1000}.items():
         if counts[tag]["domains"] < minimum:
             raise InvalidSource("Domain source unexpectedly small: " + tag)
     previous = root / "dist/manifest.json"
@@ -170,7 +170,7 @@ def build(root: Path, offline: bool = False):
     for path, nets in source_ips.items():
         write_lines(root / "rules" / path, map(str, nets))
     for label in ("China", "OpenAI", "AdGuard"):
-        tag = "pw2-" + label.lower()
+        tag = "pooban-" + label.lower()
         write_lines(root / "rules" / label / "domains.txt", (r.text() for r in domains[tag]))
         if tag in ips:
             write_lines(root / "rules" / label / "ip.txt", map(str, ips[tag]))

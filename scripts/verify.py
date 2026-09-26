@@ -104,9 +104,9 @@ def verify(root: Path, binary: Path):
         if (root / "dist" / (name + ".sha256sum")).read_text() != f"{expected}  {name}\n":
             raise AssertionError("Sidecar checksum mismatch")
     all_rules = []
-    for tag in ("pw2-china", "pw2-openai", "pw2-adguard"):
+    for tag in ("pooban-china", "pooban-openai", "pooban-adguard"):
         all_rules.append({"type": "field", "domain": ["geosite:" + tag], "outboundTag": "hit"})
-    for tag in ("pw2-china", "pw2-openai"):
+    for tag in ("pooban-china", "pooban-openai"):
         all_rules.append({"type": "field", "ip": ["geoip:" + tag], "outboundTag": "hit"})
     invoke_test(binary, root / "dist", config(all_rules))
     # Independent engine-level coverage of all protobuf domain types, regex
@@ -133,7 +133,7 @@ def verify(root: Path, binary: Path):
             if host is None:
                 lines = (root / f"rules/{label}/domains.txt").read_text().splitlines()
                 host = next(l.split(":", 1)[1] for l in lines if l.startswith(("domain:", "full:")))
-            tag = "pw2-" + label.lower()
+            tag = "pooban-" + label.lower()
             rules = [{"type": "field", "domain": ["geosite:" + tag], "outboundTag": "hit"}]
             cases = [(host, "hit"), ("unlisted-test.invalid", "miss")]
             if label == "OpenAI":

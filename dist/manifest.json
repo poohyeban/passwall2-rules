@@ -11,27 +11,27 @@
     "output": 182332
   },
   "artifacts": {
-    "geoip.dat": "cf19ff1ed853f6125de3a7c1ee616217f64e11a7c2e22604516f03a82ed7bac3",
-    "geosite.dat": "4239336b4e084ecce0d8999dca039d6bf61a248fa7ab43c23e8627eb5fb0a4c2"
+    "geoip.dat": "951790cc89e9f5c5851160e0679f9da0db60930145cc8ee38c4c77c789a753e7",
+    "geosite.dat": "90ef9c5e68a217326224270139dd6afd7ffe81d2c23bc925e6803683769d6c6d"
   },
   "asn_records": {
     "401518": 1,
     "401864": 0
   },
   "counts": {
-    "pw2-adguard": {
+    "pooban-adguard": {
       "domains": 182332,
       "ipv4": 0,
       "ipv6": 0,
       "regexps": 0
     },
-    "pw2-china": {
+    "pooban-china": {
       "domains": 6623,
       "ipv4": 8098,
       "ipv6": 11307,
       "regexps": 3
     },
-    "pw2-openai": {
+    "pooban-openai": {
       "domains": 36,
       "ipv4": 24,
       "ipv6": 0,

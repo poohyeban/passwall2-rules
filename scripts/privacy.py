@@ -12,7 +12,7 @@ import subprocess
 
 BOT_NAME = "github-actions[bot]"
 BOT_EMAIL = "41898282+github-actions[bot]@users.noreply.github.com"
-ALLOWED = {".github", ".gitignore", "README.md", "LICENSE", "NOTICE.md", "licenses",
+ALLOWED = {".github", ".gitignore", "README.md", "README.zh-CN.md", "LICENSE", "NOTICE.md", "licenses",
            "requirements.txt", "scripts", "tests", "data", "rules", "dist"}
 
 
