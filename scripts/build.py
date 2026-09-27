@@ -14,11 +14,13 @@ import urllib.request
 import maxminddb
 
 from . import adguard
+from .google import google_domains
 from .model import InvalidSource, geoip, geosite, networks, official_domains, v2fly
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = {
     "china-domain": "https://raw.githubusercontent.com/v2fly/domain-list-community/release/cn.txt",
+    "google-domain": "https://codeload.github.com/v2fly/domain-list-community/zip/refs/heads/master",
     "openai-domain": "https://raw.githubusercontent.com/v2fly/domain-list-community/master/data/openai",
     "country": "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb",
     "asn": "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb",
@@ -125,6 +127,7 @@ def build(root: Path, offline: bool = False):
         for name, data in raw.items():
             (cache / name).write_bytes(data)
     china = v2fly(raw["china-domain"].decode("utf-8-sig"))
+    google, google_categories = google_domains(raw["google-domain"])
     openai_v2 = v2fly(raw["openai-domain"].decode("utf-8-sig"))
     source = (root / "data/OpenAI/official-domains.txt").read_text(encoding="utf-8")
     exclusions = (root / "data/OpenAI/official-domains-excluded.txt").read_text(encoding="utf-8")
@@ -134,25 +137,30 @@ def build(root: Path, offline: bool = False):
     asn_coverage = {}
     ai_asn = read_mmdb(cache / "asn", "asn", asn_coverage)
     ai_voice = voice_prefixes(raw["voice"])
-    domains = {"pooban-china": china, "pooban-openai": openai_v2 | official, "pooban-adguard": ads}
+    domains = {"pooban-china": china, "pooban-google": google,
+               "pooban-openai": openai_v2 | official, "pooban-adguard": ads}
     ips = {"pooban-china": cn_ip, "pooban-openai": networks(ai_asn + ai_voice)}
     counts = {tag: {"domains": len(rules), "regexps": sum(r.kind == "regexp" for r in rules),
                     "ipv4": sum(n.version == 4 for n in ips.get(tag, [])),
                     "ipv6": sum(n.version == 6 for n in ips.get(tag, []))}
               for tag, rules in domains.items()}
-    for tag, minimum in {"pooban-china": 100, "pooban-openai": 5, "pooban-adguard": 1000}.items():
+    for tag, minimum in {"pooban-china": 100, "pooban-google": 500,
+                         "pooban-openai": 5, "pooban-adguard": 1000}.items():
         if counts[tag]["domains"] < minimum:
             raise InvalidSource("Domain source unexpectedly small: " + tag)
     previous = root / "dist/manifest.json"
     if previous.exists():
         old = json.loads(previous.read_text())["counts"]
         for tag in counts:
+            if tag not in old:
+                continue
             for metric in ("domains", "ipv4", "ipv6"):
                 before, after = old[tag][metric], counts[tag][metric]
                 if before and after < before * 0.65:
                     raise InvalidSource(f"Unexpected >35% shrink: {tag}/{metric}; manual source review required")
     source_domains = {
         "China/Sources/v2fly-domains.txt": china,
+        "Google/Sources/v2fly-domains.txt": google,
         "OpenAI/Sources/v2fly-domains.txt": openai_v2,
         "OpenAI/Sources/official-domains.txt": official,
         "AdGuard/Sources/hostname-blocks.txt": ads,
@@ -169,7 +177,7 @@ def build(root: Path, offline: bool = False):
         write_lines(root / "rules" / path, (r.text() for r in rules))
     for path, nets in source_ips.items():
         write_lines(root / "rules" / path, map(str, nets))
-    for label in ("China", "OpenAI", "AdGuard"):
+    for label in ("China", "Google", "OpenAI", "AdGuard"):
         tag = "pooban-" + label.lower()
         write_lines(root / "rules" / label / "domains.txt", (r.text() for r in domains[tag]))
         if tag in ips:
@@ -191,6 +199,7 @@ def build(root: Path, offline: bool = False):
         "artifacts": {"geosite.dat": sha(site_data), "geoip.dat": sha(ip_data)},
         "adguard": adstats,
         "asn_records": asn_coverage,
+        "google_categories": google_categories,
     })
     save_json(root / "rules/AdGuard/Sources/omissions.json", omissions)
     print(json.dumps(counts, indent=2))

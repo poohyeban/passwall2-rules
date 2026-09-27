@@ -12,7 +12,7 @@
   },
   "artifacts": {
     "geoip.dat": "951790cc89e9f5c5851160e0679f9da0db60930145cc8ee38c4c77c789a753e7",
-    "geosite.dat": "90ef9c5e68a217326224270139dd6afd7ffe81d2c23bc925e6803683769d6c6d"
+    "geosite.dat": "580ba4359f028d7b7f735ba418d64069645615407eb16c660b7dbb4913fcb758"
   },
   "asn_records": {
     "401518": 1,
@@ -31,6 +31,12 @@
       "ipv6": 11307,
       "regexps": 3
     },
+    "pooban-google": {
+      "domains": 1119,
+      "ipv4": 0,
+      "ipv6": 0,
+      "regexps": 2
+    },
     "pooban-openai": {
       "domains": 36,
       "ipv4": 24,
@@ -39,6 +45,27 @@
     }
   },
   "format": 1,
+  "google_categories": [
+    "android",
+    "blogspot",
+    "dart",
+    "fastlane",
+    "firebase",
+    "flutter",
+    "golang",
+    "google",
+    "google-deepmind",
+    "google-play",
+    "google-registry",
+    "google-scholar",
+    "google-trust-services",
+    "googlefcm",
+    "kaggle",
+    "opensourceinsights",
+    "polymer",
+    "v8",
+    "youtube"
+  ],
   "reviewed_inputs": {
     "official-domains-excluded.txt": "7cd36f96f4df2edbbc569f93706b31202e24ed1b0244348a249e906471ec6bbd",
     "official-domains.txt": "d46ed3f8b878bb4b7da4287482c018eca1f15c796802e21e5f27a9431311ecec"
@@ -59,6 +86,10 @@
     "country": {
       "sha256": "aa10ad6c6dc7daa32344954a9bdfae83d8e791540b7d17f7d06086aeb5b630cc",
       "url": "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb"
+    },
+    "google-domain": {
+      "sha256": "7920a2800753c689154867dd5237c3235f8ee7a56d5a5865c42d0e471a5e76fa",
+      "url": "https://codeload.github.com/v2fly/domain-list-community/zip/refs/heads/master"
     },
     "openai-domain": {
       "sha256": "19a100966b3c5b0dff2e7038ba66366ef10d6384781b3eda6de4d1e79712dcc6",

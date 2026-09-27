@@ -2,7 +2,7 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-Generate **China, OpenAI, and AdGuard** rules for a dedicated rule group in
+Generate **China, Google, OpenAI, and AdGuard** rules for a dedicated rule group in
 **PassWall2 + Xray**. This repository fetches public upstream data daily,
 preserves supported domain regular expressions, and produces readable rule
 lists alongside native `geosite.dat` and `geoip.dat` files. The rules define
@@ -32,6 +32,7 @@ do not paste the HTTP URLs into a rule's domain field.
 |---|---|---|---|
 | AdGuard | `geosite:pooban-adguard` | Leave empty | Block |
 | OpenAI | `geosite:pooban-openai` | `geoip:pooban-openai` | Selected proxy |
+| Google | `geosite:pooban-google` | Leave empty | Selected proxy |
 | China | `geosite:pooban-china` | `geoip:pooban-china` | Direct |
 
 Create a dedicated rule group and select it in the active Xray shunt node.
@@ -63,6 +64,7 @@ inbound configuration; a different filename cannot reproduce that behavior.
 
 | Category | Source |
 |---|---|
+| Google domains | Complete [v2fly Google](https://github.com/v2fly/domain-list-community/blob/master/data/google) include tree from a single archive snapshot, including YouTube and Google Play |
 | China domains | [v2fly release/cn.txt](https://raw.githubusercontent.com/v2fly/domain-list-community/release/cn.txt) |
 | China IPv4/IPv6 | [P3TERX GeoLite2 Country](https://github.com/P3TERX/GeoLite.mmdb), selecting only records where `country.iso_code == CN` |
 | OpenAI domains | [v2fly openai](https://github.com/v2fly/domain-list-community/blob/master/data/openai), plus the reviewed official-domain snapshot in `data/OpenAI` minus its explicit exclusion list |
@@ -81,6 +83,44 @@ manifest reports each ASN's record count, including zero, without inventing
 missing prefixes. The build fails if the combined selection for both ASNs is
 empty.
 
+### Google coverage and upstream choice
+
+`pooban-google` uses the complete v2fly `google` category, recursively resolving
+its includes from **one downloaded repository archive**. The reviewed tree
+includes YouTube (video/CDN/Music), Google Play, Android, Firebase, DeepMind,
+FCM, Blogger, Scholar, and developer services. Gmail, Drive, Maps, Photos,
+Gemini, Google APIs, and Cloud service domains are covered by the parent rules.
+The manifest records the archive hash and every resolved category. Daily builds
+re-fetch the archive; missing, cyclic, or newly filtered includes fail publication.
+
+Use the unfiltered category: `@cn` and `@ads` entries are retained. This includes
+`google.cn`, `googleapis.cn`, `gstatic.com`, and `xn--ngstr-lra8j.com`.
+**Place Google before China**, so Google domains that are also in China use the
+Google outbound. If AdGuard is enabled above Google, matching Google advertising
+and tracking domains are still blocked; Google does not override that policy.
+
+We compared these upstream options:
+
+| Candidate | Decision |
+|---|---|
+| [v2fly Google](https://github.com/v2fly/domain-list-community/blob/master/data/google) | Selected: explicitly includes YouTube and Google Play, keeps native rule semantics, and matches the existing domain-source family. |
+| [blackmatrix7 Google](https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/Clash/Google) | Its README explicitly excludes YouTube; it requires additional categories for the requested scope. |
+| [MetaCubeX meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) | Useful aggregated distribution; using v2fly directly keeps this category's provenance and include expansion simpler. |
+
+There is **no `geoip:pooban-google`**; leave the IP field empty. Broad Google
+network lists can include third-party Cloud workloads and cannot identify a
+Google service precisely. Domain routing includes upstream shared hosting
+suffixes such as `appspot.com` and `run.app`, so tenants under those suffixes
+are covered too. A third-party custom domain is not automatically Google.
+Coverage follows the maintained upstream list, not a guarantee that every
+future Google endpoint or an IP-only connection will be identified. No broad
+`google` substring rule or guessed Google IP range is added.
+
+Existing download URLs and other category names stay the same. After updating
+the Geosite file in PassWall2, add Google to your dedicated rule group, select
+TCP + UDP and its proxy outbound, and place it above China. Downloading the
+updated file alone does not activate a new shunt rule.
+
 ## Repository layout
 
 ```text
@@ -93,6 +133,9 @@ rules/
     Sources/             v2fly domains and GeoLite Country networks
     domains.txt
     ip.txt
+  Google/
+    Sources/             Resolved v2fly Google include tree
+    domains.txt
   OpenAI/
     Sources/             v2fly, official domains, ASN, and Voice
     domains.txt
@@ -101,7 +144,7 @@ rules/
     Sources/             Upstream input, converted rules, and omission reasons
     domains.txt
 dist/
-  geosite.dat            POOBAN-CHINA, POOBAN-OPENAI, POOBAN-ADGUARD
+  geosite.dat            POOBAN-CHINA, POOBAN-GOOGLE, POOBAN-OPENAI, POOBAN-ADGUARD
   geoip.dat              POOBAN-CHINA, POOBAN-OPENAI
   *.sha256sum
   manifest.json          Source hashes, rule counts, and artifact hashes

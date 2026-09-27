@@ -104,7 +104,7 @@ def verify(root: Path, binary: Path):
         if (root / "dist" / (name + ".sha256sum")).read_text() != f"{expected}  {name}\n":
             raise AssertionError("Sidecar checksum mismatch")
     all_rules = []
-    for tag in ("pooban-china", "pooban-openai", "pooban-adguard"):
+    for tag in ("pooban-china", "pooban-google", "pooban-openai", "pooban-adguard"):
         all_rules.append({"type": "field", "domain": ["geosite:" + tag], "outboundTag": "hit"})
     for tag in ("pooban-china", "pooban-openai"):
         all_rules.append({"type": "field", "ip": ["geoip:" + tag], "outboundTag": "hit"})
@@ -129,7 +129,8 @@ def verify(root: Path, binary: Path):
               ("192.0.2.15", "hit"), ("198.51.100.1", "miss"),
               ("2001:db8::123", "hit"), ("2001:db9::123", "miss")]),
         ]
-        for label, host in (("China", "baidu.com"), ("OpenAI", "chatgpt.com"), ("AdGuard", None)):
+        for label, host in (("China", "baidu.com"), ("Google", "google.com"),
+                            ("OpenAI", "chatgpt.com"), ("AdGuard", None)):
             if host is None:
                 lines = (root / f"rules/{label}/domains.txt").read_text().splitlines()
                 host = next(l.split(":", 1)[1] for l in lines if l.startswith(("domain:", "full:")))
@@ -141,6 +142,20 @@ def verify(root: Path, binary: Path):
                               ("chatgpt-async-webps-prod-example-12.webpubsub.azure.com", "hit")])
             if label == "AdGuard":
                 cases.append(("ad.10010.com", "miss"))
+            elif label == "Google":
+                cases.extend((host, "hit") for host in (
+                    "www.youtube.com", "music.youtube.com", "youtu.be", "i.ytimg.com",
+                    "rr1.sn-example.googlevideo.com", "mail.google.com", "drive.google.com",
+                    "maps.google.com", "photos.google.com", "gemini.google.com",
+                    "aistudio.google.com", "deepmind.google", "play.google.com",
+                    "android.com", "mtalk.google.com", "firebase.google.com",
+                    "example.firebaseapp.com", "example.run.app", "cloud.google.com",
+                    "storage.googleapis.com", "fonts.gstatic.com", "google.cn",
+                    "services.googleapis.cn", "xn--ngstr-lra8j.com",
+                    "redirector.xn--ngstr-lra8j.com", "doubleclick.net"))
+                cases.extend((host, "miss") for host in (
+                    "notgoogle.com", "google.com.evil.invalid", "youtube.com.evil.invalid",
+                    "chatgpt.com", "baidu.com", "unrelated.dev", "192.0.2.1"))
             else:
                 rules.append({"type": "field", "ip": ["geoip:" + tag], "outboundTag": "hit"})
                 nets = [ipaddress.ip_network(l) for l in (root / f"rules/{label}/ip.txt").read_text().splitlines()]
@@ -150,6 +165,12 @@ def verify(root: Path, binary: Path):
                         cases.append((str(selected.network_address), "hit"))
                 cases.append(("192.0.2.1", "miss"))
             groups.append((root / "dist", rules, cases))
+        # Google must win over overlapping China domains in the intended order.
+        groups.append((root / "dist", [
+            {"type": "field", "domain": ["geosite:pooban-google"], "outboundTag": "hit"},
+            {"type": "field", "domain": ["geosite:pooban-china"], "outboundTag": "miss"},
+        ], [("google.cn", "hit"), ("redirector.xn--ngstr-lra8j.com", "hit"),
+            ("fonts.gstatic.com", "hit"), ("baidu.com", "miss")]))
         total = 0
         for index, (assets, rules, cases) in enumerate(groups):
             scratch = base / str(index)

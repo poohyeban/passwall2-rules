@@ -2,7 +2,7 @@
 
 [English](README.md) | **简体中文**
 
-为 **PassWall2 + Xray** 独立分流规则组生成 China、OpenAI、AdGuard 三类规则。
+为 **PassWall2 + Xray** 独立分流规则组生成 China、Google、OpenAI、AdGuard 四类规则。
 每天自动获取公开数据源，保留可用的域名正则，生成可阅读的明文规则与原生
 `geosite.dat`、`geoip.dat`。规则只定义匹配范围，出口由 PassWall2 中的选择决定。
 
@@ -29,6 +29,7 @@ https://raw.githubusercontent.com/poohyeban/passwall2-rules/main/dist/geoip.dat
 |---|---|---|---|
 | AdGuard | `geosite:pooban-adguard` | 留空 | 屏蔽 |
 | OpenAI | `geosite:pooban-openai` | `geoip:pooban-openai` | 指定代理 |
+| Google | `geosite:pooban-google` | 留空 | 指定代理 |
 | China | `geosite:pooban-china` | `geoip:pooban-china` | 直连 |
 
 新建独立规则组，并让正在使用的 Xray 分流节点选择该组。网络选择 TCP + UDP；
@@ -52,6 +53,7 @@ Geo 数据不携带 Shadowrocket 的 `no-resolve` 属性。是否为 IP 规则�
 
 | 分类 | 来源 |
 |---|---|
+| Google 域名 | 单个仓库快照中完整展开的 [v2fly Google](https://github.com/v2fly/domain-list-community/blob/master/data/google)，包含 YouTube、Google Play 等子分类 |
 | China 域名 | [v2fly release/cn.txt](https://raw.githubusercontent.com/v2fly/domain-list-community/release/cn.txt) |
 | China IPv4/IPv6 | [P3TERX GeoLite2 Country](https://github.com/P3TERX/GeoLite.mmdb)，仅 `country.iso_code == CN` |
 | OpenAI 域名 | [v2fly openai](https://github.com/v2fly/domain-list-community/blob/master/data/openai) + `data/OpenAI` 中审核过的官方域名快照减去显式排除条目 |
@@ -65,6 +67,38 @@ China 表示上游数据分类，不等同于“仅中国公司所有的域名�
 ASN 数据库可能暂时没有某个目标 ASN 的记录；manifest 会分别记录数量（包括 0），
 不猜测缺失网段。两个目标 ASN 合计为空时构建失败。
 
+### Google 覆盖范围与上游选择
+
+`pooban-google` 使用 v2fly 的完整 `google` 分类，从**同一个仓库压缩包快照**递归
+展开全部 include。审核时包含 YouTube（视频/CDN/Music）、Google Play、Android、
+Firebase、DeepMind、FCM、Blogger、Scholar 及开发者服务。父级规则还覆盖 Gmail、
+Drive、Maps、Photos、Gemini、Google APIs 和 Cloud 服务域名。
+manifest 记录压缩包校验值及所有展开分类。每天重新获取；遇到缺失、循环引用或
+新增的带过滤条件 include 时停止发布，避免静默改变范围。
+
+使用完整分类，保留 `@cn` 和 `@ads` 条目，包括 `google.cn`、`googleapis.cn`、
+`gstatic.com`、`xn--ngstr-lra8j.com`。**Google 必须放在 China 前面**，这样同时属于
+China 的 Google 域名才能优先走 Google 出口。若上方启用 AdGuard，命中广告规则的
+Google 广告和追踪域名仍会被拦截；Google 不会覆盖这一策略。
+
+上游比较：
+
+| 候选 | 结论 |
+|---|---|
+| [v2fly Google](https://github.com/v2fly/domain-list-community/blob/master/data/google) | 采用：明确包含 YouTube、Google Play，保留原生匹配语义，与现有域名来源一致。 |
+| [blackmatrix7 Google](https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/Clash/Google) | README 明确说明不包含 YouTube，需要额外组合分类。 |
+| [MetaCubeX meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) | 可用的聚合分发项目；本库直接取 v2fly，来源和 include 展开过程更简单。 |
+
+**不提供 `geoip:pooban-google`，IP 框留空。** 大范围 Google 网段可能包含第三方
+Cloud 租户，不能准确代表 Google 服务。域名列表仍按上游保留 `appspot.com`、
+`run.app` 等共享托管后缀，因此这些后缀下的租户也会匹配；第三方自定义域名不会
+自动被视为 Google。覆盖范围依赖上游维护，不能保证识别所有未来新增端点或
+只有 IP、没有可识别域名的连接。不加入泛化的 `google` 关键词或猜测网段。
+
+原有下载地址及分类名保持不变。在 PassWall2 更新 Geosite 后，在独立集合中新建
+Google 规则，选择 TCP + UDP、指定代理出口，并放在 China 上方。只更新数据文件
+不会自动启用新分流。
+
 ## 架构
 
 ```text
@@ -76,6 +110,9 @@ rules/
     Sources/            v2fly 域名、GeoLite Country IP
     domains.txt
     ip.txt
+  Google/
+    Sources/            完整展开的 v2fly Google 分类
+    domains.txt
   OpenAI/
     Sources/            v2fly、官方域名、ASN、Voice
     domains.txt
@@ -84,7 +121,7 @@ rules/
     Sources/            上游原文、转换结果、遗漏原因
     domains.txt
 dist/
-  geosite.dat           POOBAN-CHINA、POOBAN-OPENAI、POOBAN-ADGUARD
+  geosite.dat           POOBAN-CHINA、POOBAN-GOOGLE、POOBAN-OPENAI、POOBAN-ADGUARD
   geoip.dat             POOBAN-CHINA、POOBAN-OPENAI
   *.sha256sum
   manifest.json         来源校验值、规则数量、产物校验值

@@ -1,6 +1,8 @@
 import ipaddress
 import json
 import unittest
+import io
+import zipfile
 from unittest.mock import patch
 from types import SimpleNamespace
 from pathlib import Path
@@ -8,6 +10,40 @@ from pathlib import Path
 from scripts.model import Domain, InvalidSource, hostname, networks, official_domains, v2fly
 from scripts.adguard import convert, intersects, pattern_rule, split_rule
 from scripts.build import voice_prefixes, read_mmdb
+from scripts.google import google_domains
+
+
+class GoogleTests(unittest.TestCase):
+    def archive(self, files):
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as archive:
+            for name, text in files.items():
+                archive.writestr("snapshot/data/" + name, text)
+        return buffer.getvalue()
+
+    def test_nested_includes_and_cn_ads_annotations_preserved(self):
+        data = self.archive({"google": "include:youtube\ninclude:play\ngoogle.cn @cn\nads.example @ads",
+                             "youtube": "include:video\nyoutube.com",
+                             "video": "googlevideo.com", "play": "xn--ngstr-lra8j.com"})
+        rules, names = google_domains(data)
+        self.assertEqual(len(rules), 5)
+        self.assertEqual(names, ["google", "play", "video", "youtube"])
+        self.assertIn(Domain("domain", "google.cn"), rules)
+        self.assertIn(Domain("domain", "ads.example"), rules)
+
+    def test_missing_cycle_filtered_and_unsafe_includes_fail(self):
+        for files in ({"google": "include:missing"},
+                      {"google": "include:youtube", "youtube": "include:google"},
+                      {"google": "include:youtube @cn", "youtube": "youtube.com"},
+                      {"google": "include:../private"}):
+            with self.subTest(files=files), self.assertRaises(InvalidSource):
+                google_domains(self.archive(files))
+
+    def test_full_and_regex_semantics_survive_archive_resolution(self):
+        rules, _ = google_domains(self.archive({"google": "full:exact.example\nregexp:^r[0-9]+\\.example$ @cn"}))
+        self.assertTrue(any(r.matches("r12.example") for r in rules))
+        self.assertFalse(any(r.matches("child.exact.example") for r in rules))
+        self.assertFalse(any(r.matches("r12.example.evil.invalid") for r in rules))
 
 
 class V2FlyTests(unittest.TestCase):
