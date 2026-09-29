@@ -1603,6 +1603,7 @@ domain:cn-shanghai.aliyuncs.com
 domain:cn.pool.ntp.org
 domain:cnanzhi.com
 domain:cnb.cool
+domain:cnb.space
 domain:cnbksy.com
 domain:cnblogs.com
 domain:cnblogs.vip
