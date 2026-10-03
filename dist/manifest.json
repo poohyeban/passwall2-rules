@@ -1,18 +1,18 @@
 {
   "adguard": {
     "badfilter": 5,
-    "blocks_before_exceptions": 177504,
+    "blocks_before_exceptions": 177614,
     "disabled": 1,
     "exception_envelopes": 11,
     "exceptions": 207,
     "important_conservatively_lowered": 5,
-    "input": 177767,
+    "input": 177877,
     "omitted": 770,
-    "output": 176791
+    "output": 176901
   },
   "artifacts": {
     "geoip.dat": "e06129fef117c9b80d8688ced0c4a1c97e248591b5afde1899702c92571f9699",
-    "geosite.dat": "d2f4bf70b3bb4b19bf999d9f8b5befa7b0bca466b87d4105fe97fbdab69f7d26"
+    "geosite.dat": "64bd9d88df18183ac3f1aec9d86fbc819388d37b4efebd02f16f2bf8269e56e5"
   },
   "asn_records": {
     "401518": 1,
@@ -20,7 +20,7 @@
   },
   "counts": {
     "pooban-adguard": {
-      "domains": 176791,
+      "domains": 176901,
       "ipv4": 0,
       "ipv6": 0,
       "regexps": 0
@@ -31,17 +31,35 @@
       "ipv6": 11246,
       "regexps": 3
     },
+    "pooban-facebook": {
+      "domains": 397,
+      "ipv4": 0,
+      "ipv6": 0,
+      "regexps": 0
+    },
     "pooban-google": {
       "domains": 1122,
       "ipv4": 0,
       "ipv6": 0,
       "regexps": 2
     },
+    "pooban-instagram": {
+      "domains": 73,
+      "ipv4": 0,
+      "ipv6": 0,
+      "regexps": 0
+    },
     "pooban-openai": {
       "domains": 36,
       "ipv4": 24,
       "ipv6": 0,
       "regexps": 7
+    },
+    "pooban-whatsapp": {
+      "domains": 11,
+      "ipv4": 0,
+      "ipv6": 0,
+      "regexps": 0
     }
   },
   "format": 1,
@@ -66,13 +84,120 @@
     "v8",
     "youtube"
   ],
+  "meta_categories": {
+    "Facebook": [
+      "facebook"
+    ],
+    "Instagram": [
+      "instagram"
+    ],
+    "WhatsApp": [
+      "whatsapp"
+    ]
+  },
+  "meta_sukka_selection": {
+    "input": 28,
+    "review_entries_absent_upstream": 0,
+    "selected": {
+      "Facebook": 11,
+      "Instagram": 3,
+      "WhatsApp": 1
+    },
+    "skipped": [
+      {
+        "line": 187,
+        "reason": "legacy FriendFeed shortener, not selected for Facebook",
+        "source_rule": "DOMAIN-SUFFIX,ff.im"
+      },
+      {
+        "line": 192,
+        "reason": "Messenger is a separate upstream service category",
+        "source_rule": "DOMAIN-SUFFIX,m.me"
+      },
+      {
+        "line": 193,
+        "reason": "Messenger is a separate upstream service category",
+        "source_rule": "DOMAIN-SUFFIX,messenger.com"
+      },
+      {
+        "line": 194,
+        "reason": "Messenger is a separate upstream service category",
+        "source_rule": "DOMAIN-SUFFIX,fbmessenger.com"
+      },
+      {
+        "line": 195,
+        "reason": "Oculus is a separate upstream service category",
+        "source_rule": "DOMAIN-SUFFIX,oculus.com"
+      },
+      {
+        "line": 196,
+        "reason": "Oculus is a separate upstream service category",
+        "source_rule": "DOMAIN-SUFFIX,oculuscdn.com"
+      },
+      {
+        "line": 200,
+        "reason": "Threads is a separate upstream service category",
+        "source_rule": "DOMAIN-SUFFIX,threads.net"
+      },
+      {
+        "line": 202,
+        "reason": "brand keyword also matches unrelated hostnames",
+        "source_rule": "DOMAIN-KEYWORD,facebook"
+      },
+      {
+        "line": 203,
+        "reason": "Meta umbrella site, outside the three service categories",
+        "source_rule": "DOMAIN-SUFFIX,meta.com"
+      },
+      {
+        "line": 205,
+        "reason": "outside the three service categories",
+        "source_rule": "DOMAIN-SUFFIX,mixer.com"
+      },
+      {
+        "line": 206,
+        "reason": "Threads is a separate upstream service category",
+        "source_rule": "DOMAIN-SUFFIX,threads.com"
+      },
+      {
+        "line": 207,
+        "reason": "Meta umbrella site, outside the three service categories",
+        "source_rule": "DOMAIN-SUFFIX,atmeta.com"
+      },
+      {
+        "line": 209,
+        "reason": "brand keyword also matches unrelated hostnames",
+        "source_rule": "DOMAIN-KEYWORD,whatsapp"
+      }
+    ]
+  },
+  "meta_supplement_added": {
+    "Facebook": [
+      [
+        "domain",
+        "accountkit.com"
+      ],
+      [
+        "domain",
+        "f8.com"
+      ]
+    ],
+    "Instagram": [
+      [
+        "domain",
+        "instagr.am"
+      ]
+    ],
+    "WhatsApp": []
+  },
   "reviewed_inputs": {
+    "Meta/sukka-review.json": "36dbaced73c24886823f973acf52faeb7d2291ce90763810c4e1dc73de7b39be",
     "official-domains-excluded.txt": "7cd36f96f4df2edbbc569f93706b31202e24ed1b0244348a249e906471ec6bbd",
     "official-domains.txt": "d46ed3f8b878bb4b7da4287482c018eca1f15c796802e21e5f27a9431311ecec"
   },
   "sources": {
     "adguard": {
-      "sha256": "ba684f430d758524780e5b1c979349674ee42944967526571f7271b0119f8840",
+      "sha256": "230fae3d8e053cf7f79f0d19b28e34502e8de9c15ab8885f5d2b3a0ce25cca67",
       "url": "https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt"
     },
     "asn": {
@@ -94,6 +219,10 @@
     "openai-domain": {
       "sha256": "19a100966b3c5b0dff2e7038ba66366ef10d6384781b3eda6de4d1e79712dcc6",
       "url": "https://raw.githubusercontent.com/v2fly/domain-list-community/master/data/openai"
+    },
+    "sukka-meta": {
+      "sha256": "9e0ec987310a4e86dcbe981052da0531cef296f98e6516d6df0bbd3422f29cd1",
+      "url": "https://raw.githubusercontent.com/SukkaW/Surge/master/Source/non_ip/global.conf"
     },
     "voice": {
       "sha256": "8f03f3c594165eeff009915c7e2beb4bdfb9d429fb1955c205e3b33ec781899a",

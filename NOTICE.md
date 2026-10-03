@@ -32,3 +32,12 @@ https://github.com/XTLS/Xray-core/blob/v26.9.9/common/geodata/geodat.proto
 
 No router configuration, node credentials, traffic records, personal identity,
 or workstation metadata is an input to the published rules.
+
+- **Sukka and contributors / SukkaW/Surge**: the reviewed Meta service
+  supplements derive from `Source/non_ip/global.conf` under AGPL-3.0. See
+  `licenses/Sukka-AGPL-3.0.txt` and https://github.com/SukkaW/Surge.
+  Initial modifications: 2026-10-03; service selection, Xray conversion and
+  suffix compaction. The combined WhatsApp, Instagram and Facebook datasets
+  and their DAT components are distributed under AGPL-3.0. Separately stored
+  v2fly-only subsets retain MIT. Corresponding transformation code, review
+  mapping, readable subsets and source hashes are included in this repository.

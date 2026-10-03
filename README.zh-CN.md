@@ -2,7 +2,7 @@
 
 [English](README.md) | **简体中文**
 
-为 **PassWall2 + Xray** 独立分流规则组生成 China、Google、OpenAI、AdGuard 四类规则。
+为 **PassWall2 + Xray** 独立分流规则组生成 China、Google、OpenAI、AdGuard、WhatsApp、Instagram、Facebook 七类规则。
 每天自动获取公开数据源，保留可用的域名正则，生成可阅读的明文规则与原生
 `geosite.dat`、`geoip.dat`。规则只定义匹配范围，出口由 PassWall2 中的选择决定。
 
@@ -30,6 +30,9 @@ https://raw.githubusercontent.com/poohyeban/passwall2-rules/main/dist/geoip.dat
 | AdGuard | `geosite:pooban-adguard` | 留空 | 屏蔽 |
 | OpenAI | `geosite:pooban-openai` | `geoip:pooban-openai` | 指定代理 |
 | Google | `geosite:pooban-google` | 留空 | 指定代理 |
+| WhatsApp | `geosite:pooban-whatsapp` | 留空 | 自行选择 |
+| Instagram | `geosite:pooban-instagram` | 留空 | 自行选择 |
+| Facebook | `geosite:pooban-facebook` | 留空 | 自行选择 |
 | China | `geosite:pooban-china` | `geoip:pooban-china` | 直连 |
 
 新建独立规则组，并让正在使用的 Xray 分流节点选择该组。网络选择 TCP + UDP；
@@ -48,6 +51,26 @@ PassWall2 26.9.16 的 `rule-set:remote:` / `rule-set:local:` 用于 Sing-box；X
 
 Geo 数据不携带 Shadowrocket 的 `no-resolve` 属性。是否为 IP 规则解析域名由 Xray
 的 `domainStrategy`、DNS 和入站设置决定，不能靠换一个文件名模拟。
+
+
+### WhatsApp / Instagram / Facebook
+
+三类规则分别使用 `geosite:pooban-whatsapp`、`geosite:pooban-instagram`、
+`geosite:pooban-facebook`，均已写入同一个 `dist/geosite.dat`。IP 框留空。
+可阅读规则位于 `rules/WhatsApp/domains.txt`、`rules/Instagram/domains.txt`、
+`rules/Facebook/domains.txt`，只含匹配条件。
+
+主源为 v2fly 对应的三个独立分类，复用 Google 下载的同一仓库快照并递归展开
+include；辅助源为 SukkaW/Surge 的原始 `Source/non_ip/global.conf`。
+使用与 loon-rules 相同的审核映射 `data/Meta/sukka-review.json`，按服务归类，
+补充 `instagr.am`、`accountkit.com`、`f8.com`。不额外合入 Messenger、Threads、
+Oculus、Meta 综合站点或宽泛品牌关键词。未分类的辅助根域名记录待审；
+审核映射不会重新注入上游已删除的条目。数据直接来自原始上游，不转换 Loon 成品。
+
+保留 Xray 的精确、后缀、关键词和原生正则语义；只在同类中做去重与安全后缀覆盖
+压缩，不添加整个 Meta ASN 或 IP 大段。域名分类不保证覆盖纯 IP 的音视频连接。
+manifest 记录源哈希、展开分类和全部辅助筛选结果。现有定时 Action 自动更新，
+发布前由真实 Xray 验证三个标签及跨服务不命中、伪装后缀不命中等边界。
 
 ## 数据源
 

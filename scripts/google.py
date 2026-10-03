@@ -1,4 +1,4 @@
-"""Resolve the complete v2fly Google include tree from one archive snapshot."""
+"""Resolve a complete v2fly category include tree from one archive snapshot."""
 import io
 import re
 import zipfile
@@ -6,7 +6,7 @@ import zipfile
 from .model import InvalidSource, v2fly
 
 
-def google_domains(data: bytes):
+def google_domains(data: bytes, category: str = "google"):
     with zipfile.ZipFile(io.BytesIO(data)) as archive:
         roots = [n[:-len("data/google")] for n in archive.namelist()
                  if n.endswith("/data/google")]
@@ -48,5 +48,5 @@ def google_domains(data: bytes):
             sources[name] = rules
             return rules
 
-        rules = resolve("google")
+        rules = resolve(category)
         return rules, sorted(sources)

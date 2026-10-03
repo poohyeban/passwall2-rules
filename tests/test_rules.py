@@ -45,6 +45,21 @@ class GoogleTests(unittest.TestCase):
         self.assertFalse(any(r.matches("child.exact.example") for r in rules))
         self.assertFalse(any(r.matches("r12.example.evil.invalid") for r in rules))
 
+    def test_independent_meta_categories_share_snapshot_without_google_leakage(self):
+        data = self.archive({"google": "google.example", "facebook": "include:fb-child\nfacebook.example",
+                             "fb-child": "full:exact.example\nregexp:^r[0-9]+\\.example$",
+                             "instagram": "instagram.example", "whatsapp": "whatsapp.example"})
+        facebook, names = google_domains(data, "facebook")
+        self.assertEqual(names, ["facebook", "fb-child"])
+        self.assertTrue(any(r.matches("r12.example") for r in facebook))
+        self.assertFalse(any(r.matches("child.exact.example") for r in facebook))
+        for category in ("instagram", "whatsapp"):
+            rules, names = google_domains(data, category)
+            self.assertEqual(names, [category])
+            self.assertEqual(rules, {Domain("domain", category + ".example")})
+            self.assertFalse(any(r.matches("facebook.example") for r in rules))
+        self.assertFalse(any(r.matches("google.example") for r in facebook))
+
 
 class V2FlyTests(unittest.TestCase):
     def test_suffix_full_keyword_are_distinct(self):

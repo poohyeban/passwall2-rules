@@ -42,9 +42,9 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Fetch verified official Xray
         run: python -m scripts.fetch_xray
-      - name: Generate all rules
+      - name: Generate all rules including WhatsApp Instagram Facebook
         run: python -m scripts.build
-      - name: Native Xray and isolated routing checks
+      - name: Native Xray and isolated routing checks for all seven categories
         run: python -m scripts.verify
       - name: Deterministic rebuild
         run: |

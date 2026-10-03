@@ -2,7 +2,7 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-Generate **China, Google, OpenAI, and AdGuard** rules for a dedicated rule group in
+Generate **China, Google, OpenAI, AdGuard, WhatsApp, Instagram, and Facebook** rules for a dedicated rule group in
 **PassWall2 + Xray**. This repository fetches public upstream data daily,
 preserves supported domain regular expressions, and produces readable rule
 lists alongside native `geosite.dat` and `geoip.dat` files. The rules define
@@ -33,6 +33,9 @@ do not paste the HTTP URLs into a rule's domain field.
 | AdGuard | `geosite:pooban-adguard` | Leave empty | Block |
 | OpenAI | `geosite:pooban-openai` | `geoip:pooban-openai` | Selected proxy |
 | Google | `geosite:pooban-google` | Leave empty | Selected proxy |
+| WhatsApp | `geosite:pooban-whatsapp` | Leave empty | Select in PassWall2 |
+| Instagram | `geosite:pooban-instagram` | Leave empty | Select in PassWall2 |
+| Facebook | `geosite:pooban-facebook` | Leave empty | Select in PassWall2 |
 | China | `geosite:pooban-china` | `geoip:pooban-china` | Direct |
 
 Create a dedicated rule group and select it in the active Xray shunt node.
@@ -59,6 +62,30 @@ publish `.list` or `.srs` files presented as Xray remote rule-sets.
 Geo data does not carry Shadowrocket's `no-resolve` modifier. Whether domains
 are resolved for IP matching depends on Xray's `domainStrategy`, DNS, and
 inbound configuration; a different filename cannot reproduce that behavior.
+
+
+### WhatsApp / Instagram / Facebook
+
+Use `geosite:pooban-whatsapp`, `geosite:pooban-instagram`, and
+`geosite:pooban-facebook` from the same `dist/geosite.dat`. Leave IP fields empty.
+Readable, policy-free files are `rules/WhatsApp/domains.txt`,
+`rules/Instagram/domains.txt`, and `rules/Facebook/domains.txt`.
+
+The primary categories come directly from the same v2fly archive already fetched
+for Google, with recursive include resolution. SukkaW/Surge's original
+`Source/non_ip/global.conf` supplements them using the same reviewed mapping as
+loon-rules in `data/Meta/sukka-review.json`. Supplementary domains are `instagr.am`,
+`accountkit.com`, and `f8.com`. Messenger, Threads, Oculus, Meta umbrella sites and
+broad brand keywords are not additionally merged. Unclassified auxiliary roots
+are reported for review; selectors never reinsert removed upstream rules.
+No generated Loon lists are consumed.
+
+Exact, suffix, keyword and native regexp semantics are preserved. Within each
+service, duplicates and rules fully covered by unconditional suffixes are removed.
+No broad Meta ASN/IP sets are added; domain lists do not guarantee coverage of
+IP-only voice/video connections. Source hashes, expanded categories and selection
+decisions are recorded in the manifest. Existing schedules update these categories;
+real Xray tests check each new tag and cross-service and suffix-boundary misses.
 
 ## Data sources
 

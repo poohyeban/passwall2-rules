@@ -104,7 +104,8 @@ def verify(root: Path, binary: Path):
         if (root / "dist" / (name + ".sha256sum")).read_text() != f"{expected}  {name}\n":
             raise AssertionError("Sidecar checksum mismatch")
     all_rules = []
-    for tag in ("pooban-china", "pooban-google", "pooban-openai", "pooban-adguard"):
+    for tag in ("pooban-china", "pooban-google", "pooban-openai", "pooban-adguard",
+                "pooban-whatsapp", "pooban-instagram", "pooban-facebook"):
         all_rules.append({"type": "field", "domain": ["geosite:" + tag], "outboundTag": "hit"})
     for tag in ("pooban-china", "pooban-openai"):
         all_rules.append({"type": "field", "ip": ["geoip:" + tag], "outboundTag": "hit"})
@@ -130,7 +131,9 @@ def verify(root: Path, binary: Path):
               ("2001:db8::123", "hit"), ("2001:db9::123", "miss")]),
         ]
         for label, host in (("China", "baidu.com"), ("Google", "google.com"),
-                            ("OpenAI", "chatgpt.com"), ("AdGuard", None)):
+                            ("OpenAI", "chatgpt.com"), ("AdGuard", None),
+                            ("WhatsApp", "whatsapp.com"), ("Instagram", "instagram.com"),
+                            ("Facebook", "facebook.com")):
             if host is None:
                 lines = (root / f"rules/{label}/domains.txt").read_text().splitlines()
                 host = next(l.split(":", 1)[1] for l in lines if l.startswith(("domain:", "full:")))
@@ -142,6 +145,18 @@ def verify(root: Path, binary: Path):
                               ("chatgpt-async-webps-prod-example-12.webpubsub.azure.com", "hit")])
             if label == "AdGuard":
                 cases.append(("ad.10010.com", "miss"))
+            elif label in {"WhatsApp", "Instagram", "Facebook"}:
+                positives = {
+                    "WhatsApp": ["wa.me", "media.whatsapp.net", "graph.whatsapp.com"],
+                    "Instagram": ["instagr.am", "cdninstagram.com", "ig.me"],
+                    "Facebook": ["fbcdn.net", "tfbnw.net", "accountkit.com", "f8.com", "fbcdn-a.akamaihd.net"],
+                }
+                cases.extend((value, "hit") for value in positives[label])
+                cases.extend((value, "miss") for value in (
+                    host + ".evil.invalid", "not" + host, "threads.net", "oculus.com",
+                    "messenger.com", "meta.com", "child.fbcdn-a.akamaihd.net", "192.0.2.1"))
+                cases.extend((other, "miss") for other in ("whatsapp.com", "instagram.com", "facebook.com")
+                             if other != host)
             elif label == "Google":
                 cases.extend((host, "hit") for host in (
                     "www.youtube.com", "music.youtube.com", "youtu.be", "i.ytimg.com",

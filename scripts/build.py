@@ -15,7 +15,8 @@ import maxminddb
 
 from . import adguard
 from .google import google_domains
-from .model import InvalidSource, geoip, geosite, networks, official_domains, v2fly
+from .model import Domain, InvalidSource, geoip, geosite, networks, official_domains, v2fly
+from .meta_common import SERVICES, compact, select_sukka
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = {
@@ -26,6 +27,7 @@ SOURCES = {
     "asn": "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb",
     "voice": "https://openai.com/chatgpt-voice.json",
     "adguard": "https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt",
+    "sukka-meta": "https://raw.githubusercontent.com/SukkaW/Surge/master/Source/non_ip/global.conf",
 }
 ASNS = {401518, 401864}
 
@@ -128,6 +130,15 @@ def build(root: Path, offline: bool = False):
             (cache / name).write_bytes(data)
     china = v2fly(raw["china-domain"].decode("utf-8-sig"))
     google, google_categories = google_domains(raw["google-domain"])
+    meta_primary, meta_categories = {}, {}
+    for service in SERVICES:
+        rules, meta_categories[service] = google_domains(raw["google-domain"], service.lower())
+        meta_primary[service] = {(rule.kind, rule.value) for rule in rules}
+    meta_review = (root / "data/Meta/sukka-review.json").read_bytes()
+    meta_supplement, meta_selection = select_sukka(
+        raw["sukka-meta"].decode("utf-8-sig"), meta_primary, json.loads(meta_review))
+    meta_domains = {service: {Domain(*r) for r in compact(meta_primary[service] | meta_supplement[service])}
+                    for service in SERVICES}
     openai_v2 = v2fly(raw["openai-domain"].decode("utf-8-sig"))
     source = (root / "data/OpenAI/official-domains.txt").read_text(encoding="utf-8")
     exclusions = (root / "data/OpenAI/official-domains-excluded.txt").read_text(encoding="utf-8")
@@ -139,13 +150,15 @@ def build(root: Path, offline: bool = False):
     ai_voice = voice_prefixes(raw["voice"])
     domains = {"pooban-china": china, "pooban-google": google,
                "pooban-openai": openai_v2 | official, "pooban-adguard": ads}
+    domains.update({"pooban-" + s.lower(): rules for s, rules in meta_domains.items()})
     ips = {"pooban-china": cn_ip, "pooban-openai": networks(ai_asn + ai_voice)}
     counts = {tag: {"domains": len(rules), "regexps": sum(r.kind == "regexp" for r in rules),
                     "ipv4": sum(n.version == 4 for n in ips.get(tag, [])),
                     "ipv6": sum(n.version == 6 for n in ips.get(tag, []))}
               for tag, rules in domains.items()}
     for tag, minimum in {"pooban-china": 100, "pooban-google": 500,
-                         "pooban-openai": 5, "pooban-adguard": 1000}.items():
+                         "pooban-openai": 5, "pooban-adguard": 1000,
+                         "pooban-whatsapp": 5, "pooban-instagram": 5, "pooban-facebook": 10}.items():
         if counts[tag]["domains"] < minimum:
             raise InvalidSource("Domain source unexpectedly small: " + tag)
     previous = root / "dist/manifest.json"
@@ -170,6 +183,9 @@ def build(root: Path, offline: bool = False):
         "OpenAI/Sources/geolite-asn-ip.txt": ai_asn,
         "OpenAI/Sources/voice-ip.txt": ai_voice,
     }
+    for service in SERVICES:
+        source_domains[f"{service}/Sources/v2fly-domains.txt"] = {Domain(*r) for r in meta_primary[service]}
+        source_domains[f"{service}/Sources/sukka-domains.txt"] = {Domain(*r) for r in meta_supplement[service]}
     # Validate everything before changing tracked artifacts. CI publishes only
     # after a separate real-Xray gate; failed builds are never committed.
     site_data, ip_data = geosite(domains), geoip(ips)
@@ -177,7 +193,7 @@ def build(root: Path, offline: bool = False):
         write_lines(root / "rules" / path, (r.text() for r in rules))
     for path, nets in source_ips.items():
         write_lines(root / "rules" / path, map(str, nets))
-    for label in ("China", "Google", "OpenAI", "AdGuard"):
+    for label in ("China", "Google", "OpenAI", "AdGuard", *SERVICES):
         tag = "pooban-" + label.lower()
         write_lines(root / "rules" / label / "domains.txt", (r.text() for r in domains[tag]))
         if tag in ips:
@@ -195,11 +211,16 @@ def build(root: Path, offline: bool = False):
         "counts": counts,
         "sources": {name: {"url": url, "sha256": sha(raw[name])} for name, url in SOURCES.items()},
         "reviewed_inputs": {"official-domains.txt": sha(source.encode()),
-                            "official-domains-excluded.txt": sha(exclusions.encode())},
+                            "official-domains-excluded.txt": sha(exclusions.encode()),
+                            "Meta/sukka-review.json": sha(meta_review)},
         "artifacts": {"geosite.dat": sha(site_data), "geoip.dat": sha(ip_data)},
         "adguard": adstats,
         "asn_records": asn_coverage,
         "google_categories": google_categories,
+        "meta_categories": meta_categories,
+        "meta_sukka_selection": meta_selection,
+        "meta_supplement_added": {s: [list(r) for r in sorted(
+            {(r.kind, r.value) for r in meta_domains[s]} - compact(meta_primary[s]))] for s in SERVICES},
     })
     save_json(root / "rules/AdGuard/Sources/omissions.json", omissions)
     print(json.dumps(counts, indent=2))
