@@ -789,6 +789,10 @@
   },
   {
     "reason": "exception-overlap-or-not-provably-disjoint",
+    "rule": "regexp:(?:^|\\.)anonymous\\.qub\\.ca"
+  },
+  {
+    "reason": "exception-overlap-or-not-provably-disjoint",
     "rule": "regexp:(?:^|\\.)api.*\\.amplitude\\.com$"
   },
   {
