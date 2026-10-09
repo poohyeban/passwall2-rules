@@ -473,26 +473,6 @@
   },
   {
     "reason": "exception-overlap-or-not-provably-disjoint",
-    "rule": "regexp:(?:^|\\.)107\\.167\\.16\\..*\\.gif"
-  },
-  {
-    "reason": "exception-overlap-or-not-provably-disjoint",
-    "rule": "regexp:(?:^|\\.)107\\.167\\.22\\..*\\.gif"
-  },
-  {
-    "reason": "exception-overlap-or-not-provably-disjoint",
-    "rule": "regexp:(?:^|\\.)121\\.204\\.246\\..*\\.gif"
-  },
-  {
-    "reason": "exception-overlap-or-not-provably-disjoint",
-    "rule": "regexp:(?:^|\\.)38\\.33\\.15\\..*\\.gif"
-  },
-  {
-    "reason": "exception-overlap-or-not-provably-disjoint",
-    "rule": "regexp:(?:^|\\.)67\\.21\\.92\\..*\\.gif"
-  },
-  {
-    "reason": "exception-overlap-or-not-provably-disjoint",
     "rule": "regexp:(?:^|\\.)a.*\\.chajiaotong\\.com$"
   },
   {
@@ -850,10 +830,6 @@
   {
     "reason": "exception-overlap-or-not-provably-disjoint",
     "rule": "regexp:(?:^|\\.)as.*\\.prog\\.hu$"
-  },
-  {
-    "reason": "exception-overlap-or-not-provably-disjoint",
-    "rule": "regexp:(?:^|\\.)asd8900\\.oss\\-.*\\.aliyuncs\\.com$"
   },
   {
     "reason": "exception-overlap-or-not-provably-disjoint",
@@ -1530,10 +1506,6 @@
   {
     "reason": "exception-overlap-or-not-provably-disjoint",
     "rule": "regexp:(?:^|\\.)kbox\\-analytics\\-prod\\.s.*\\.amazonaws\\.com$"
-  },
-  {
-    "reason": "exception-overlap-or-not-provably-disjoint",
-    "rule": "regexp:(?:^|\\.)ky891\\.oss\\-.*\\.aliyuncs\\.com$"
   },
   {
     "reason": "exception-overlap-or-not-provably-disjoint",
@@ -2441,10 +2413,6 @@
   },
   {
     "reason": "exception-overlap-or-not-provably-disjoint",
-    "rule": "regexp:(?:^|\\.)tupian888\\..*\\.bcebos\\.com$"
-  },
-  {
-    "reason": "exception-overlap-or-not-provably-disjoint",
     "rule": "regexp:(?:^|\\.)tw\\-726620180914\\..*\\.run\\.app$"
   },
   {
@@ -2538,10 +2506,6 @@
   {
     "reason": "exception-overlap-or-not-provably-disjoint",
     "rule": "regexp:(?:^|\\.)videoclik\\."
-  },
-  {
-    "reason": "exception-overlap-or-not-provably-disjoint",
-    "rule": "regexp:(?:^|\\.)vns86\\.oss\\-.*\\.aliyuncs\\.com$"
   },
   {
     "reason": "exception-overlap-or-not-provably-disjoint",
